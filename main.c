@@ -23,13 +23,55 @@ int main() {
 
         // Call the function to read and check words after parsing
         readAndCheckWords(words, numWords);
+
+        (*currentIndex) = 0;
+        (*sentenceCount) = 0;
+        sentences = NULL;
+    
         
 
-        int start = 0;
-        int* currentIndex = &start;
-        int count = 0;
-        int* sentenceCount = &count;
-        Sentence** sentences;
+        if (globalReader(0)) {
+            printf("TRUE\n");
+            Sentence* sentence1 = sentences[0];
+            Subject* subject1 = sentence1->subjects[0];
+            Subject* subject2 = sentence1->subjects[1];
+            Subject* subject3 = sentence1->other;
+            printf("Subject1 : %s\n", subject1->name);
+            printf("Subject2 : %s\n", subject2->name);
+            printf("Subject3 : %s\n", subject3->name);
+            printf("Verb : %s\n", sentence1->verb);
+            printf("Item1 : %s\n", sentence1->items[0]);
+            printf("Item2 : %s\n", sentence1->items[1]);
+
+            Sentence* sentence2 = sentences[1];
+            Subject* subject4 = sentence2->subjects[0];
+            Subject* subject5 = sentence2->subjects[1];
+            printf("Subject4 : %s\n", subject4->name);
+            printf("Subject5 : %s\n", subject5->name);
+            printf("Verb : %s\n", sentence2->verb);
+            printf("Location : %s\n", sentence2->location);
+
+
+        }
+        else {
+            printf("INVALID\n");
+
+        }
+        /*
+        else { 
+            printf("%lu\n", sizeof(sentences));
+            Sentence* sentence1 = sentences[0];
+            printf("%s\n", "INVALID"); 
+            Subject* subject1 = sentence1->subjects[0];
+            Subject* subject2 = sentence1->subjects[1];
+            printf("Subject1 : %s\n", subject1->name);
+            printf("Subject2 : %s\n", subject2->name);
+
+        } */
+
+
+
+
         /*
         globalreader(sentences, 0, ...)
         false -> invalid
