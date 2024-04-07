@@ -187,7 +187,7 @@ int actionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
                             if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex])) {
                                 char* currentItem = words[*currentIndex];
                                 sentence->items[sentence->itemCount] = currentItem;
-                                sentence->itemCount++
+                                sentence->itemCount++;
                                 i++;
                                 (*currentIndex)++;
                             }
@@ -259,7 +259,7 @@ int actionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
                             if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex])) {
                                 char* currentItem = words[*currentIndex];
                                 sentence->items[sentence->itemCount] = currentItem;
-                                sentence->itemCount++
+                                sentence->itemCount++;
                                 i++;
                                 (*currentIndex)++;
                             }
@@ -273,7 +273,7 @@ int actionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
                                 (*currentIndex)++;
                             }
                             else if (strcmp(words[*currentIndex], "if" ) == 0 && currentIndex + 1 < numWords) {
-                                i++
+                                i++;
                                 (*currentIndex)++;
                                 return 1; // Next is the condition sentence
                             }
@@ -292,17 +292,138 @@ int actionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
             }
 
             else if (strcmp(words[*currentIndex], "buy") == 0) {
-            
+                (*currentIndex)++;
+                i = 0;
                 char* nextKeyword = nextKeyword(*currentIndex);
                 if (!nextKeyword && strcmp(words[*currentIndex], "from") == 0) { // Buy-from block
+                    strcpy(sentence->verb, "buyFrom");
+                    while(*currentIndex < numWords) {
+                        if (i % 3 == 0) { // Search for a quantity
+                            if (validQuantity(words[*currentIndex])) {
+                                sentence->quantities = realloc(sentenceCount, (sentence->quantityCount + 1) * sizeof(int));
+                                sentence->quantities[sentence->quantityCount] = atoi(words[*currentIndex]);
+                                sentence->quantityCount++;
+                                i++;
+                                (*currentIndex)++;
+                            }
+                            else {
+                                return -1;
+                            }
+                        } 
+                        else if (i % 3 == 1) { // Search for item
+                            if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex])) {
+                                char* currentItem = words[*currentIndex];
+                                sentence->items[sentence->itemCount] = currentItem;
+                                sentence->itemCount++;
+                                i++;
+                                (*currentIndex)++;
+                            }
+
+                            else {
+                                return -1;
+                            }
+                        }
+                        else { // Search for "and" or "to"
+                            if (strcmp(words[*currentIndex], "and") == 0) {
+                                i++;
+                                (*currentIndex)++;
+                            }
+                            else if (strcmp(words[*currentIndex], "from" ) == 0 && currentIndex + 1 < numWords) {
+                                i++;
+                                (*currentIndex)++;
+                                if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex]) ) {
+                                    Subject* otherSubject = findOrCreateSubject(words[*currentIndex]);
+                                    sentence->other = otherSubject;
+                                }
+                                else { return -1; }
+                        
+                                if (*currentIndex + 1 < numWords) {
+                                    i++;
+                                    (*currentIndex)++;
+                                    if (strcmp(words[*currentIndex], "and" && currentIndex + 1 < numWords ) == 0) {
+                                        i++;
+                                        (*currentIndex)++;
+                                        return 0;
+                                    }
+                                    else if (strcmp(words[*currentIndex], "if" && currentIndex + 1 < numWords ) == 0) {
+                                        i++;
+                                        (*currentIndex)++;
+                                        return 1;
+                                    }
+                                    else { return -1; }
+
+                                }
+                                else { return 2; }
+                            }
+                            else {
+                                return -1;
+                            }
+                        }
+                    }
 
                 }
                 else { // End of current or whole sentence, Buy block
-                
+                    strcpy(sentence->verb, "buy");
+                    while(*currentIndex < numWords) {
+                        if (i % 3 == 0) { // Search for a quantity
+                            if (validQuantity(words[*currentIndex])) {
+                                sentence->quantities = realloc(sentenceCount, (sentence->quantityCount + 1) * sizeof(int));
+                                sentence->quantities[sentence->quantityCount] = atoi(words[*currentIndex]);
+                                sentence->quantityCount++;
+                                i++;
+                                (*currentIndex)++;
+                            }
+                            else {
+                                if (sentence->quantityCount == 0) { // If there is no quantity at first
+                                    return -1;
+                                }
+                                else {
+                                    return 0;
+                                }
+                            }
+                        }
+                        else if (i % 3 == 1) { // Search for item
+                            if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex])) {
+                                char* currentItem = words[*currentIndex];
+                                sentence->items[sentence->itemCount] = currentItem;
+                                sentence->itemCount++;
+                                i++;
+                                (*currentIndex)++;
+                            }
+                            else {
+                                return -1;
+                            }
+                        }
+                        else { // Search for "and" or "if"
+                            if (strcmp(words[*currentIndex], "and") == 0 && currentIndex + 1 < numWords) {
+                                i++;
+                                (*currentIndex)++;
+                            }
+                            else if (strcmp(words[*currentIndex], "if" ) == 0 && currentIndex + 1 < numWords) {
+                                i++;
+                                (*currentIndex)++;
+                                return 1; // Next is the condition sentence
+                            }
+                            else {
+                                return -1;
+                            }
+                        }
+                        if (sentence->quantityCount != sentence->itemCount) {
+                            foundVerb = false;
+                        }
+                        else {
+                            foundVerb = true;
+                        }
+                    }
                 }
             }
             
             else if (strcmp(words[*currentIndex], "go") == 0) {
+                (*currentIndex)++;
+                i = 0;
+                if(strcmp(words[*currentIndex],"to") == 0){
+                    
+                }
 
             }
             else {
