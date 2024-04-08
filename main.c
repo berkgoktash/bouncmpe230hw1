@@ -22,11 +22,24 @@ int main() {
         if (numWords == 1 && strcmp(words[0], "exit") == 0) break;
 
         // Call the function to read and check words after parsing
-        readAndCheckWords(words, numWords);
+        //readAndCheckWords(words, numWords);
 
         (*currentIndex) = 0;
         (*sentenceCount) = 0;
         sentences = NULL;
+
+        if (strcmp(words[numWords - 1], "?") == 0) {
+            questionReader();
+        }
+        else {
+            if (globalReader(0)) {
+                processSentences();
+                printf("OK\n");
+            }
+            else {
+                printf("INVALID\n");
+            }
+        }
     
         
         /*

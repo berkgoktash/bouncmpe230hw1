@@ -12,10 +12,11 @@ void totalInventory(Subject* owner);
 void sumItem(Subject** owners, int numOwners, const char* itemName) {
     int total = 0;
     for (int i = 0; i < numOwners; ++i) {
-        if (!findItem(owners[i], itemName)) {
+        if (findItem(owners[i], itemName) != NULL) {
             total += findItem(owners[i], itemName)->quantity;
         }
     }
+    printf("%d\n", total);
 
 }
 void where(Subject* visitor) {

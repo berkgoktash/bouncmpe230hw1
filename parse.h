@@ -11,6 +11,7 @@
 #define MAX_LINES 128
 
 int actionReader(Sentence* sentence, int* currentIndex);
+int conditionReader(Sentence* sentence, int* currentIndex);
 
 Location** allLocations = NULL; // Define and initialize the global locations array
 int allLocationsCount = 0; // Define and initialize the global count of locations
@@ -159,7 +160,7 @@ void questionReader() {
     }
 
     else if (questionKeyword != NULL && strcmp(questionKeyword, "who") == 0) {  // Who-at block
-        if (numWords == 4 && strcmp(words[0], "who") == 0 && strcmp(words[1], "at") && isValidString(words[2]) && !isAnyKeyword(words[2])) {
+        if (numWords == 4 && strcmp(words[0], "who") == 0 && strcmp(words[1], "at") == 0 && isValidString(words[2]) && !isAnyKeyword(words[2])) {
             whoAt(words[2]);
         }
         else { printf("INVALID\n"); }
@@ -214,7 +215,7 @@ bool globalReader(int sentenceType) {
     } 
 
     if (sentenceType == 2) {
-        printf("END OF SENTENCE\n");
+        //printf("END OF SENTENCE\n");
         return true; // End of sentence
     }
 
@@ -231,14 +232,17 @@ bool globalReader(int sentenceType) {
         return globalReader(actionReader(newSentence, currentIndex));
     }
 
-    /*
+    
     if (sentenceType == 1) { // Call condition reader
         Sentence* newSentence = malloc(sizeof(Sentence));
+        newSentence->subjects = NULL;
+        newSentence->items = NULL;
+        newSentence->quantities = NULL;
         sentences[(*sentenceCount)++] = newSentence;
         newSentence->type = 1;
-        return globalReader(sentences, sentenceCount, currentIndex, conditionReader());
+        return globalReader(conditionReader(newSentence, currentIndex));
     }
-    */
+    
     return true; 
 }
 
@@ -799,6 +803,61 @@ int conditionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
     }
     return 2;
 } 
+
+bool checkCondition(Sentence* condition) {
+    return true;
+}
+
+void executeAction(Sentence* action) {
+    if (strcmp(action->verb, "buy") == 0) {
+        buy(action->subjects, action->subjectCount, (const char**)action->items, action->itemCount, action->quantities);
+    }
+    else if (strcmp(action->verb, "buyFrom") == 0) {
+        buyFrom(action->subjects, action->subjectCount, action->other, (const char**)action->items, action->itemCount, action->quantities);
+    }
+    else if (strcmp(action->verb, "sell") == 0) {
+        sell(action->subjects, action->subjectCount, (const char**)action->items, action->itemCount, action->quantities);
+    }
+    else if (strcmp(action->verb, "sellTo") == 0) {
+        sellTo(action->subjects, action->subjectCount, action->other, (const char**)action->items, action->itemCount, action->quantities);
+    }
+    else if (strcmp(action->verb, "goTo") == 0) {
+        goTo(action->subjects, action->subjectCount, action->location);
+    }
+}
+
+void processSentences() {
+    bool conditionsMet = true; // Assume conditions are met until proven otherwise
+    for (int i = 0; i < *sentenceCount; i++) {
+        if (sentences[i]->type == 0) {
+            // Buffer actions until we meet a condition or end of the sequence
+            int actionStartIndex = i;
+            int actionEndIndex = i;
+            while (actionEndIndex + 1 < *sentenceCount && sentences[actionEndIndex + 1]->type == 0) {
+                actionEndIndex++;
+            }
+            
+            // Check conditions after this sequence of actions
+            conditionsMet = true;
+            for (int j = actionEndIndex + 1; j < *sentenceCount && sentences[j]->type == 1; j++) {
+                if (!checkCondition(sentences[j])) {
+                    conditionsMet = false; // Any condition is false, actions should not be executed
+                    break;
+                }
+            }
+            // Execute actions if all conditions met
+            if (conditionsMet) {
+                for (int j = actionStartIndex; j <= actionEndIndex; j++) {
+                    executeAction(sentences[j]);
+                }
+            }
+        
+            
+            // Skip to the end of the action sequence
+            i = actionEndIndex;
+        }
+    }
+}
 
 
 
