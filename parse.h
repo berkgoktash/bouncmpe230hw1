@@ -334,8 +334,6 @@ int actionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
                         }
                     }
                 }
-
-            
                 else { // End of current or whole sentence, Sell block
                     sentence->verb = strdup("sell");
                     while(*currentIndex < numWords) {
@@ -426,7 +424,7 @@ int actionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
                                 return -1;
                             }
                         }
-                        else { // Search for "and" or "to"
+                        else { // Search for "and" or "from"
                             if (strcmp(words[*currentIndex], "and") == 0) {
                                 i++;
                                 (*currentIndex)++;
@@ -563,6 +561,236 @@ int actionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
                 return -1;
             }
 
+        }
+    }
+
+    if (!foundVerb) {
+        return -1;
+    }
+    return 2;
+} 
+
+int conditionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
+    bool foundVerb = false;
+    int i = 0;
+    while (*currentIndex < numWords) {
+        sentence->subjects = realloc(sentence->subjects, (sentence->subjectCount + 1) * sizeof(Subject*));
+        if (i % 2 == 0) { // Search for a subject
+            if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex]) ) {
+                Subject* currentSubject = findOrCreateSubject(words[*currentIndex]);
+                sentence->subjects[sentence->subjectCount] = currentSubject;
+                sentence->subjectCount++;
+                i++;
+                (*currentIndex)++;
+            }
+            else {
+                return -1;
+            }
+        }
+        else { // Search for a condition verb or "and"
+            if (strcmp(words[*currentIndex], "and") == 0) {
+                i++;
+                (*currentIndex)++;
+            }
+            else if (strcmp(words[*currentIndex], "has") == 0 && *currentIndex + 1 < numWords) {
+                (*currentIndex)++;
+                i = 0;
+                char* nextKeyword = findNextKeyword(*currentIndex);
+                if (nextKeyword != NULL && strcmp(words[*currentIndex], "less") == 0 && *currentIndex + 1 < numWords) { // Has less than block
+                    (*currentIndex)++;
+                    if (strcmp(words[*currentIndex], "than") == 0 && *currentIndex + 1 < numWords) {
+                        sentence->verb = strdup("hasLessThan");                    
+                        while(*currentIndex < numWords) {
+                            if (i % 3 == 0) { // Search for a quantity
+                                if (validQuantity(words[*currentIndex])) {
+                                    sentence->quantities = realloc(sentence->quantities, (sentence->quantityCount + 1) * sizeof(int));
+                                    sentence->quantities[sentence->quantityCount] = atoi(words[*currentIndex]);
+                                    sentence->quantityCount++;
+                                    i++;
+                                    (*currentIndex)++;
+                                }
+                                else {
+                                    if (sentence->quantityCount == 0) { // If there is no quantity at first
+                                        return -1;
+                                    }
+                                    else {
+                                        char* nextKeyword = findNextKeyword(*currentIndex);
+                                        if(nextKeyword != NULL && isActionKeyword(nextKeyword)){
+                                            return 0;
+                                        }
+                                        else if(nextKeyword != NULL && (strcmp(nextKeyword,"at") == 0 || strcmp(nextKeyword,"has") == 0)){
+                                            return 1;
+                                        }
+                                        else {return -1;}
+                                    }
+                                }
+                            }
+                            else if (i % 3 == 1) { // Search for item
+                                if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex])) {
+                                    char* currentItem = words[*currentIndex];
+                                    sentence->items = realloc(sentence->items, (sentence->itemCount + 1) * sizeof(char*));
+                                    sentence->items[sentence->itemCount] = currentItem;
+                                    sentence->itemCount++;
+                                    i++;
+                                    (*currentIndex)++;
+                                }
+                                else {
+                                    return -1;
+                                }
+                            }
+                            else { // Search for "and"
+                                if (strcmp(words[*currentIndex], "and") == 0) {
+                                    i++;
+                                    (*currentIndex)++;
+                                }
+                                else {
+                                    return -1;
+                                }
+                            }
+                        }
+                    }
+                    else {return -1;}
+                }
+                else if (nextKeyword != NULL && strcmp(words[*currentIndex], "more") == 0 && *currentIndex + 1 < numWords) { // Has more than block
+                    (*currentIndex)++;
+                    if (strcmp(words[*currentIndex], "than") == 0 && *currentIndex + 1 < numWords) {
+                        sentence->verb = strdup("hasMoreThan");                    
+                        while(*currentIndex < numWords) {
+                            if (i % 3 == 0) { // Search for a quantity
+                                if (validQuantity(words[*currentIndex])) {
+                                    sentence->quantities = realloc(sentence->quantities, (sentence->quantityCount + 1) * sizeof(int));
+                                    sentence->quantities[sentence->quantityCount] = atoi(words[*currentIndex]);
+                                    sentence->quantityCount++;
+                                    i++;
+                                    (*currentIndex)++;
+                                }
+                                else {
+                                    if (sentence->quantityCount == 0) { // If there is no quantity at first
+                                        return -1;
+                                    }
+                                    else {
+                                        char* nextKeyword = findNextKeyword(*currentIndex);
+                                        if(nextKeyword != NULL && isActionKeyword(nextKeyword)){
+                                            return 0;
+                                        }
+                                        else if(nextKeyword != NULL && (strcmp(nextKeyword,"at") == 0 || strcmp(nextKeyword,"has") == 0)){
+                                            return 1;
+                                        }
+                                        else { return -1; }
+                                    }
+                                }
+                            }
+                            else if (i % 3 == 1) { // Search for item
+                                if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex])) {
+                                    char* currentItem = words[*currentIndex];
+                                    sentence->items = realloc(sentence->items, (sentence->itemCount + 1) * sizeof(char*));
+                                    sentence->items[sentence->itemCount] = currentItem;
+                                    sentence->itemCount++;
+                                    i++;
+                                    (*currentIndex)++;
+                                }
+                                else {
+                                    return -1;
+                                }
+                            }
+                            else { // Search for "and"
+                                if (strcmp(words[*currentIndex], "and") == 0) {
+                                    i++;
+                                    (*currentIndex)++;
+                                }
+                                else {
+                                    return -1;
+                                }
+                            }
+                        }
+                    }
+                    else { return -1; }
+                }
+
+                else { // End of current or whole sentence, has block
+                    sentence->verb = strdup("has");
+                    while(*currentIndex < numWords) {
+                        if (i % 3 == 0) { // Search for a quantity
+                            if (validQuantity(words[*currentIndex])) {
+                                sentence->quantities = realloc(sentence->quantities, (sentence->quantityCount + 1) * sizeof(int));
+                                sentence->quantities[sentence->quantityCount] = atoi(words[*currentIndex]);
+                                sentence->quantityCount++;
+                                i++;
+                                (*currentIndex)++;
+                            }
+                            else {
+                                if (sentence->quantityCount == 0) { // If there is no quantity at first
+                                    return -1;
+                                }
+                                else {
+                                    char* nextKeyword = findNextKeyword(*currentIndex);
+                                    if(nextKeyword != NULL && isActionKeyword(nextKeyword)){
+                                        return 0;
+                                    }
+                                    else if(nextKeyword != NULL && (strcmp(nextKeyword,"at") == 0 || strcmp(nextKeyword,"has") == 0)){
+                                        return 1;
+                                    }
+                                    else { return -1; }
+                                }
+                            }
+                        }
+                        else if (i % 3 == 1) { // Search for item
+                            if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex])) {
+                                char* currentItem = words[*currentIndex];
+                                sentence->items = realloc(sentence->items, (sentence->itemCount + 1) * sizeof(char*));
+                                sentence->items[sentence->itemCount] = currentItem;
+                                sentence->itemCount++;
+                                i++;
+                                (*currentIndex)++;
+                            }
+                            else { return -1; }
+                        }
+                        else { // Search for "and"
+                            if (strcmp(words[*currentIndex], "and") == 0 && *currentIndex + 1 < numWords) {
+                                i++;
+                                (*currentIndex)++;
+                            }
+                            else { return -1; }
+                        }
+                        if (sentence->quantityCount != sentence->itemCount) {
+                            foundVerb = false;
+                        }
+                        else {
+                            foundVerb = true;
+                        }
+                    }
+                }
+            }
+            else if (strcmp(words[*currentIndex], "at" ) == 0 && *currentIndex + 1 < numWords) { // At block
+                (*currentIndex)++;
+                if (*currentIndex + 1 < numWords) { // Search for a location
+                    if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex]) ) {     
+                        char* currentLocation = strdup(words[*currentIndex]);                        
+                        sentence->location = currentLocation;
+                        sentence->verb = strdup("at");  
+                        foundVerb = true;
+            
+                        if (*currentIndex + 1 < numWords) { // Search for a new sentence
+                            (*currentIndex)++;
+                            if (strcmp(words[*currentIndex], "and") == 0 && *currentIndex + 1 < numWords) {
+                                char* nextKeyword = findNextKeyword(*currentIndex);
+                                if(nextKeyword != NULL && isActionKeyword(nextKeyword)){
+                                    return 0;
+                                }
+                                else if(nextKeyword != NULL && (strcmp(nextKeyword,"at") == 0 || strcmp(nextKeyword,"has") == 0)){
+                                    return 1;
+                                }
+                                else { return -1; }
+                            }
+                            else { return -1; }
+                        }
+                        else { return 2; }
+                    }
+                    else { return -1; }
+                }
+                else { return -1; }
+            }
+            else { return -1; }
         }
     }
 
