@@ -29,7 +29,7 @@ int main() {
         sentences = NULL;
     
         
-
+        /*
         if (globalReader(0)) {
             printf("TRUE\n");
             Sentence* sentence1 = sentences[0];
@@ -57,20 +57,9 @@ int main() {
             printf("INVALID\n");
 
         }
-        /*
-        else { 
-            printf("%lu\n", sizeof(sentences));
-            Sentence* sentence1 = sentences[0];
-            printf("%s\n", "INVALID"); 
-            Subject* subject1 = sentence1->subjects[0];
-            Subject* subject2 = sentence1->subjects[1];
-            printf("Subject1 : %s\n", subject1->name);
-            printf("Subject2 : %s\n", subject2->name);
-
-        } */
-
-
-
+        */
+    
+    
 
         /*
         globalreader(sentences, 0, ...)

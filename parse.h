@@ -4,6 +4,7 @@
 #include "entities.h"
 #include "actions.h"
 #include "conditions.h"
+#include "questions.h"
 
 #define MAX_INPUT_LENGTH 1024
 #define MAX_WORDS 300
@@ -44,6 +45,11 @@ const char* actionKeywords[] = {
 } ;
 int numActionKeywords = 3;
 
+const char* questionKeywords[] = {
+    "total", "where", "who"
+} ;
+int numQuestionKeywords = 3;
+
 
 // Function to check if a string is any keyword
 bool isAnyKeyword(const char* str) {
@@ -67,8 +73,18 @@ bool isTargetKeyword(const char* str) {
 
 // Function to check if a string is action keyword
 bool isActionKeyword(const char* str) {
-    for (int i = 0; i < numTargetKeywords; ++i) {
+    for (int i = 0; i < numActionKeywords; ++i) {
         if (strcmp(actionKeywords[i], str) == 0) {
+            return true; // Found a match
+        }
+    }
+    return false; // No match found
+}
+
+// Function to check if a string is question keyword
+bool isQuestionKeyword(const char* str) {
+    for (int i = 0; i < numQuestionKeywords; ++i) {
+        if (strcmp(questionKeywords[i], str) == 0) {
             return true; // Found a match
         }
     }
@@ -81,6 +97,14 @@ char* findNextKeyword(int start) {
     }
     return NULL;
 }
+
+char* findQuestionKeyword() {
+    for (int i = 0; i < numWords; ++i) {
+        if (isQuestionKeyword(words[i])) return words[i];
+    }
+    return NULL;
+}
+
 
 // Function to check if the string is numeric
 bool validQuantity(const char* str) {
@@ -122,6 +146,65 @@ void readAndCheckWords(char* words[], int numWords) {
             printf("The word '%s' is found at position %d\n", words[i], i + 1);
         }
     }
+}
+
+void questionReader() {
+    char* questionKeyword = findQuestionKeyword();
+    if (questionKeyword != NULL && strcmp(questionKeyword, "where") == 0) {  // Where block
+        if (numWords == 3 && isValidString(words[0]) && !isAnyKeyword(words[0])) {
+            Subject* askedSubject = findOrCreateSubject(words[0]);
+            where(askedSubject);
+        }
+        else { printf("INVALID\n"); }
+    }
+
+    else if (questionKeyword != NULL && strcmp(questionKeyword, "who") == 0) {  // Who-at block
+        if (numWords == 4 && strcmp(words[0], "who") == 0 && strcmp(words[1], "at") && isValidString(words[2]) && !isAnyKeyword(words[2])) {
+            whoAt(words[2]);
+        }
+        else { printf("INVALID\n"); }
+    }
+
+    else if (questionKeyword != NULL && strcmp(questionKeyword, "total") == 0) {  // Total block
+        if (numWords == 3) { // Total-inventory block
+            if (isValidString(words[0]) && !isAnyKeyword(words[0])) {
+                Subject* askedSubject = findOrCreateSubject(words[0]);
+                totalInventory(askedSubject);
+            }
+            else { printf("INVALID\n"); }
+
+        }
+        else if (numWords > 3 && strcmp(words[numWords - 3], "total") == 0 && isValidString(words[numWords - 2]) && !isAnyKeyword(words[numWords - 2])) { // Sum-item block
+            Subject** askedSubjects = NULL;
+            int askedSubjectsCount = 0;
+            char* itemName = words[numWords - 2];
+
+            for (int i = 0; i < numWords - 3; i++) {
+                if (i % 2 == 0) { // Search for a subject
+                    askedSubjects = realloc(askedSubjects, (askedSubjectsCount + 1) * sizeof(Subject*));
+                    if (isValidString(words[i]) && !isAnyKeyword(words[i])) {
+                        Subject* currentSubject = findOrCreateSubject(words[i]);
+                        askedSubjects[askedSubjectsCount] = currentSubject;
+                        askedSubjectsCount++;
+                    }
+                    else {
+                        printf("INVALID\n");
+                        return;
+                    }
+                }
+                else { // Search for "and"
+                    if (strcmp(words[i], "and") != 0) {
+                        printf("INVALID\n");
+                        return;
+                    }
+                }
+            }
+            sumItem(askedSubjects, askedSubjectsCount, itemName);
+        }
+        else { printf("INVALID\n"); }
+    }
+
+    else { printf("INVALID\n"); }
 }
 
 
