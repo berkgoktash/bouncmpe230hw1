@@ -31,7 +31,7 @@ bool buyFrom(Subject** buyers, int numBuyers, Subject* seller, const char** item
         const char* itemName = itemNames[i];
         int quantity = quantities[i];
         Item* item = findItem(seller, itemName);
-        if (!item || item->quantity < quantity) {
+        if (!item || item->quantity < quantity * numBuyers) {
             return false; // Seller doesn't have enough items or item not found
         }
     }
@@ -41,7 +41,7 @@ bool buyFrom(Subject** buyers, int numBuyers, Subject* seller, const char** item
         const char* itemName = itemNames[i];
         int quantity = quantities[i];
         Item* item = findItem(seller, itemName);
-        item->quantity -= quantity;
+        item->quantity -= quantity * numBuyers;
     }
 
     for (int i = 0; i < numBuyers; ++i) {

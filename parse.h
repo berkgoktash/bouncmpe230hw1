@@ -1,7 +1,6 @@
 #ifndef PARSE_H
 #define PARSE_H
 
-#include "entities.h"
 #include "actions.h"
 #include "conditions.h"
 #include "questions.h"
@@ -121,7 +120,25 @@ bool validQuantity(const char* str) {
     return true;
 }
 
+// Function to check if a subject already exists in the Sentence
+bool subjectExists(Sentence* sentence, char* subjectName) {
+    for (int i = 0; i < sentence->subjectCount; i++) {
+        if (strcmp(sentence->subjects[i]->name, subjectName) == 0) {
+            return true; // Found a subject with the same name
+        }
+    }
+    return false; // No matching subject found
+}
 
+// Function to check if an item already exists in the Sentence
+bool itemExists(Sentence* sentence, char* newItem) {
+    for (int i = 0; i < sentence->itemCount; i++) {
+        if (strcmp(sentence->items[i], newItem) == 0) {
+            return true; // Found an item with the same name
+        }
+    }
+    return false; // No matching item found
+}
 
 
 // Function to parse the input and place each word into an array
@@ -135,19 +152,6 @@ int parseInput(char* input, char* words[]) {
     return i; // Return the number of words
 }
 
-// Function to read all words from the array and perform some check
-void readAndCheckWords(char* words[], int numWords) {
-    for (int i = 0; i < numWords; i++) {
-        // For demonstration, simply print each word
-        printf("Word %d: %s\n", i + 1, words[i]);
-
-        // Here, you can add any checks you want to perform on each word
-        // For example, checking if a word is "true" (just as an example)
-        if (strcmp(words[i], "true") == 0) {
-            printf("The word '%s' is found at position %d\n", words[i], i + 1);
-        }
-    }
-}
 
 void questionReader() {
     char* questionKeyword = findQuestionKeyword();
@@ -181,9 +185,16 @@ void questionReader() {
             char* itemName = words[numWords - 2];
 
             for (int i = 0; i < numWords - 3; i++) {
+                bool askedBefore = false;
                 if (i % 2 == 0) { // Search for a subject
                     askedSubjects = realloc(askedSubjects, (askedSubjectsCount + 1) * sizeof(Subject*));
-                    if (isValidString(words[i]) && !isAnyKeyword(words[i])) {
+                    for (int j = 0; j < askedSubjectsCount; j++) {
+                        if (strcmp(askedSubjects[j]->name, words[i]) == 0) {
+                            askedBefore = true;
+                        }
+                    }
+
+                    if (isValidString(words[i]) && !isAnyKeyword(words[i]) && !askedBefore) {
                         Subject* currentSubject = findOrCreateSubject(words[i]);
                         askedSubjects[askedSubjectsCount] = currentSubject;
                         askedSubjectsCount++;
@@ -252,7 +263,7 @@ int actionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
     while (*currentIndex < numWords) {
         sentence->subjects = realloc(sentence->subjects, (sentence->subjectCount + 1) * sizeof(Subject*));
         if (i % 2 == 0) { // Search for a subject
-            if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex]) ) {
+            if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex]) && !subjectExists(sentence, words[*currentIndex]) ) {
                 Subject* currentSubject = findOrCreateSubject(words[*currentIndex]);
                 sentence->subjects[sentence->subjectCount] = currentSubject;
                 sentence->subjectCount++;
@@ -288,7 +299,7 @@ int actionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
                             }
                         }
                         else if (i % 3 == 1) { // Search for item
-                            if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex])) {
+                            if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex]) && !itemExists(sentence, words[*currentIndex])) {
                                 char* currentItem = words[*currentIndex];
                                 sentence->items = realloc(sentence->items, (sentence->itemCount + 1) * sizeof(char*));
                                 sentence->items[sentence->itemCount] = currentItem;
@@ -359,7 +370,7 @@ int actionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
                             }
                         }
                         else if (i % 3 == 1) { // Search for item
-                            if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex])) {
+                            if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex]) && !itemExists(sentence, words[*currentIndex])) {
                                 char* currentItem = words[*currentIndex];
                                 sentence->items = realloc(sentence->items, (sentence->itemCount + 1) * sizeof(char*));
                                 sentence->items[sentence->itemCount] = currentItem;
@@ -415,7 +426,7 @@ int actionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
                             }
                         } 
                         else if (i % 3 == 1) { // Search for item
-                            if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex])) {
+                            if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex]) && !itemExists(sentence, words[*currentIndex])) {
                                 char* currentItem = words[*currentIndex];
                                 sentence->items = realloc(sentence->items, (sentence->itemCount + 1) * sizeof(char*));
                                 sentence->items[sentence->itemCount] = currentItem;
@@ -436,7 +447,7 @@ int actionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
                             else if (strcmp(words[*currentIndex], "from" ) == 0 && *currentIndex + 1 < numWords) {
                                 i++;
                                 (*currentIndex)++;
-                                if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex]) ) {
+                                if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex]) && !subjectExists(sentence, words[*currentIndex]) && !subjectExists(sentence, words[*currentIndex]) ) {
                                     Subject* otherSubject = findOrCreateSubject(words[*currentIndex]);
                                     sentence->other = otherSubject;
                                 }
@@ -488,7 +499,7 @@ int actionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
                             }
                         }
                         else if (i % 3 == 1) { // Search for item
-                            if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex])) {
+                            if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex]) && !itemExists(sentence, words[*currentIndex])) {
                                 char* currentItem = words[*currentIndex];
                                 sentence->items = realloc(sentence->items, (sentence->itemCount + 1) * sizeof(char*));
                                 sentence->items[sentence->itemCount] = currentItem;
@@ -580,7 +591,7 @@ int conditionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
     while (*currentIndex < numWords) {
         sentence->subjects = realloc(sentence->subjects, (sentence->subjectCount + 1) * sizeof(Subject*));
         if (i % 2 == 0) { // Search for a subject
-            if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex]) ) {
+            if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex]) && !subjectExists(sentence, words[*currentIndex])) {
                 Subject* currentSubject = findOrCreateSubject(words[*currentIndex]);
                 sentence->subjects[sentence->subjectCount] = currentSubject;
                 sentence->subjectCount++;
@@ -603,7 +614,8 @@ int conditionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
                 if (nextKeyword != NULL && strcmp(words[*currentIndex], "less") == 0 && *currentIndex + 1 < numWords) { // Has less than block
                     (*currentIndex)++;
                     if (strcmp(words[*currentIndex], "than") == 0 && *currentIndex + 1 < numWords) {
-                        sentence->verb = strdup("hasLessThan");                    
+                        sentence->verb = strdup("hasLessThan");
+                        (*currentIndex)++;        
                         while(*currentIndex < numWords) {
                             if (i % 3 == 0) { // Search for a quantity
                                 if (validQuantity(words[*currentIndex])) {
@@ -630,7 +642,7 @@ int conditionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
                                 }
                             }
                             else if (i % 3 == 1) { // Search for item
-                                if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex])) {
+                                if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex]) && !itemExists(sentence, words[*currentIndex])) {
                                     char* currentItem = words[*currentIndex];
                                     sentence->items = realloc(sentence->items, (sentence->itemCount + 1) * sizeof(char*));
                                     sentence->items[sentence->itemCount] = currentItem;
@@ -643,13 +655,19 @@ int conditionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
                                 }
                             }
                             else { // Search for "and"
-                                if (strcmp(words[*currentIndex], "and") == 0) {
+                                if (strcmp(words[*currentIndex], "and") == 0 && *currentIndex + 1 < numWords) {
                                     i++;
                                     (*currentIndex)++;
                                 }
                                 else {
                                     return -1;
                                 }
+                            }
+                            if (sentence->quantityCount != sentence->itemCount) {
+                                foundVerb = false;
+                            }
+                            else {
+                                foundVerb = true;
                             }
                         }
                     }
@@ -658,7 +676,8 @@ int conditionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
                 else if (nextKeyword != NULL && strcmp(words[*currentIndex], "more") == 0 && *currentIndex + 1 < numWords) { // Has more than block
                     (*currentIndex)++;
                     if (strcmp(words[*currentIndex], "than") == 0 && *currentIndex + 1 < numWords) {
-                        sentence->verb = strdup("hasMoreThan");                    
+                        sentence->verb = strdup("hasMoreThan");
+                        (*currentIndex)++;                      
                         while(*currentIndex < numWords) {
                             if (i % 3 == 0) { // Search for a quantity
                                 if (validQuantity(words[*currentIndex])) {
@@ -685,7 +704,7 @@ int conditionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
                                 }
                             }
                             else if (i % 3 == 1) { // Search for item
-                                if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex])) {
+                                if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex]) && !itemExists(sentence, words[*currentIndex])) {
                                     char* currentItem = words[*currentIndex];
                                     sentence->items = realloc(sentence->items, (sentence->itemCount + 1) * sizeof(char*));
                                     sentence->items[sentence->itemCount] = currentItem;
@@ -698,13 +717,19 @@ int conditionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
                                 }
                             }
                             else { // Search for "and"
-                                if (strcmp(words[*currentIndex], "and") == 0) {
+                                if (strcmp(words[*currentIndex], "and") == 0 && *currentIndex + 1 < numWords) {
                                     i++;
                                     (*currentIndex)++;
                                 }
                                 else {
                                     return -1;
                                 }
+                            }
+                            if (sentence->quantityCount != sentence->itemCount) {
+                                foundVerb = false;
+                            }
+                            else {
+                                foundVerb = true;
                             }
                         }
                     }
@@ -739,7 +764,7 @@ int conditionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
                             }
                         }
                         else if (i % 3 == 1) { // Search for item
-                            if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex])) {
+                            if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex]) && !itemExists(sentence, words[*currentIndex])) {
                                 char* currentItem = words[*currentIndex];
                                 sentence->items = realloc(sentence->items, (sentence->itemCount + 1) * sizeof(char*));
                                 sentence->items[sentence->itemCount] = currentItem;
@@ -767,30 +792,30 @@ int conditionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
             }
             else if (strcmp(words[*currentIndex], "at" ) == 0 && *currentIndex + 1 < numWords) { // At block
                 (*currentIndex)++;
-                if (*currentIndex + 1 < numWords) { // Search for a location
-                    if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex]) ) {     
-                        char* currentLocation = strdup(words[*currentIndex]);                        
-                        sentence->location = currentLocation;
-                        sentence->verb = strdup("at");  
-                        foundVerb = true;
-            
-                        if (*currentIndex + 1 < numWords) { // Search for a new sentence
-                            (*currentIndex)++;
-                            if (strcmp(words[*currentIndex], "and") == 0 && *currentIndex + 1 < numWords) {
-                                char* nextKeyword = findNextKeyword(*currentIndex);
-                                if(nextKeyword != NULL && isActionKeyword(nextKeyword)){
-                                    return 0;
-                                }
-                                else if(nextKeyword != NULL && (strcmp(nextKeyword,"at") == 0 || strcmp(nextKeyword,"has") == 0)){
-                                    return 1;
-                                }
-                                else { return -1; }
+                    // Search for a location
+                if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex]) ) {    
+                    char* currentLocation = strdup(words[*currentIndex]);                        
+                    sentence->location = currentLocation;
+                    sentence->verb = strdup("at");  
+                    foundVerb = true;
+        
+                    if (*currentIndex + 1 < numWords) { // Search for a new sentence
+                        (*currentIndex)++;
+                        if (strcmp(words[*currentIndex], "and") == 0 && *currentIndex + 1 < numWords) {
+                            char* nextKeyword = findNextKeyword(*currentIndex);
+                            if(nextKeyword != NULL && isActionKeyword(nextKeyword)){
+                                (*currentIndex)++;
+                                return 0;
+                            }
+                            else if(nextKeyword != NULL && (strcmp(nextKeyword,"at") == 0 || strcmp(nextKeyword,"has") == 0)){
+                                (*currentIndex)++;
+                                return 1;
                             }
                             else { return -1; }
                         }
-                        else { return 2; }
+                        else { return -1; }
                     }
-                    else { return -1; }
+                    else { return 2; }
                 }
                 else { return -1; }
             }
@@ -805,7 +830,20 @@ int conditionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
 } 
 
 bool checkCondition(Sentence* condition) {
-    return true;
+    if (strcmp(condition->verb, "has") == 0) {
+        return has(condition->subjects, condition->subjectCount, (const char**)condition->items, condition->itemCount, condition->quantities);
+    }
+    else if (strcmp(condition->verb, "hasMoreThan") == 0) {
+        return hasMoreThan(condition->subjects, condition->subjectCount, (const char**)condition->items, condition->itemCount, condition->quantities);
+    }
+    else if (strcmp(condition->verb, "hasLessThan") == 0) {
+        return hasLessThan(condition->subjects, condition->subjectCount, (const char**)condition->items, condition->itemCount, condition->quantities);
+    }
+    else if (strcmp(condition->verb, "at") == 0) {
+        return at(condition->subjects, condition->subjectCount, condition->location);
+    }
+    printf("Condition does not have a verb.\n");
+    return false;
 }
 
 void executeAction(Sentence* action) {
