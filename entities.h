@@ -13,7 +13,7 @@ typedef struct Location Location; // Forward declaration
 // Item structure
 typedef struct Item {
     char* itemName; // Name of the item
-    int quantity;       // Quantity of the item
+    int quantity;   // Quantity of the item
 } Item;
 
 // Subject structure
@@ -65,6 +65,7 @@ bool isValidString(const char *str) {
     return true;
 }
 
+// Function to find a subject from global subjects list or create a new one if not exists
 Subject* findOrCreateSubject(const char* name) {
     // Try to find the subject by name
     for (int i = 0; i < allSubjectsCount; ++i) {
@@ -94,7 +95,6 @@ Subject* findOrCreateSubject(const char* name) {
 
     // Initialize the new Subject
     newSubject->name = strdup(name); // Copy the name
-    // Initialize other properties as necessary
 
     // Add the new Subject to the global list
     allSubjects[allSubjectsCount] = newSubject;
@@ -103,7 +103,7 @@ Subject* findOrCreateSubject(const char* name) {
     return newSubject;
 }
 
-
+// Function to find an item from a subject's inventory
 Item* findItem(Subject* subject, const char* itemName) {
     for (int i = 0; i < subject->inventorySize; ++i) {
         if (strcmp(subject->inventory[i].itemName, itemName) == 0) {
@@ -115,6 +115,7 @@ Item* findItem(Subject* subject, const char* itemName) {
     return NULL;
 }
 
+// Function to add an item to a subject's inventory
 void addItemToInventory(Subject* subject, const char* itemName, int quantity) {
     Item* item = findItem(subject, itemName);
     
@@ -134,6 +135,7 @@ void addItemToInventory(Subject* subject, const char* itemName, int quantity) {
     }
 }
 
+// Function to find a location from global locations list or create a new one if not exists
 Location* findOrCreateLocation(const char* locationName) {
     for (int i = 0; i < allLocationsCount; ++i) {
         if (strcmp(allLocations[i]->locationName, locationName) == 0) {
@@ -164,17 +166,19 @@ Location* findOrCreateLocation(const char* locationName) {
     return newLocation;
 }
 
+// Function to add a subject to a location
 void addSubjectToLocation(Subject* subject, Location* location) {
     location->subjectsPresent = realloc(location->subjectsPresent, (location->subjectCount + 1) * sizeof(Subject*));
     if (!location->subjectsPresent) {
         // Handle realloc failure
-        exit(1); // Simple error handling for demonstration
+        exit(1); 
     }
 
     location->subjectsPresent[location->subjectCount] = subject;
     location->subjectCount++;
 }
 
+// Function to remove a subject from a location
 void removeSubjectFromLocation(Subject* subject) {
     Location* location = subject->currentLocation;
     if (!location) return; // Subject is not in a location

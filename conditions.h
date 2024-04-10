@@ -9,6 +9,7 @@ bool hasMoreThan(Subject** owners, int numOwners, const char** itemNames, int nu
 bool hasLessThan(Subject** owners, int numOwners, const char** itemNames, int numItems, int* quantities);
 bool at(Subject** visitors, int numVisitors, const char* locationName);
 
+// Function to check if owners have a specific amount of item(s)
 bool has(Subject** owners, int numOwners, const char** itemNames, int numItems, int* quantities) {
     int ownerItemCount;
     for (int i = 0; i < numOwners; ++i) {
@@ -29,6 +30,7 @@ bool has(Subject** owners, int numOwners, const char** itemNames, int numItems, 
     return true;
 }
 
+// Function to check if owners have more than a specific amount of item(s)
 bool hasMoreThan(Subject** owners, int numOwners, const char** itemNames, int numItems, int* quantities) {
     int ownerItemCount;
     for (int i = 0; i < numOwners; ++i) {
@@ -49,6 +51,7 @@ bool hasMoreThan(Subject** owners, int numOwners, const char** itemNames, int nu
     return true;
 }
 
+// Function to check if owners have less than a specific amount of item(s)
 bool hasLessThan(Subject** owners, int numOwners, const char** itemNames, int numItems, int* quantities) {
     int ownerItemCount;
     for (int i = 0; i < numOwners; ++i) {
@@ -69,6 +72,7 @@ bool hasLessThan(Subject** owners, int numOwners, const char** itemNames, int nu
     return true;
 }
 
+// Function to check if subjects are at a specific location
 bool at(Subject** visitors, int numVisitors, const char* locationName) {
     for (int i = 0; i < numVisitors; ++i) {
         if (strcmp(visitors[i]->currentLocation->locationName, locationName) != 0) return false;

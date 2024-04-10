@@ -8,10 +8,9 @@ bool buy(Subject** buyers, int numBuyers, const char** itemNames, int numItems, 
 bool buyFrom(Subject** buyers, int numBuyers, Subject* seller, const char** itemNames, int numItems, int* quantities);
 bool sell(Subject** sellers, int numSellers, const char** itemNames, int numItems, int* quantities);
 bool sellTo(Subject** sellers, int numSellers, Subject* buyer, const char** itemNames, int numItems, int* quantities);
-
 void goTo(Subject** travellers, int numTravelllers, const char* locationName);
 
-
+// Function for buyers buying item(s) from an infinite source
 bool buy(Subject** buyers, int numBuyers, const char** itemNames, int numItems, int* quantities) {
     
     for (int i = 0; i < numBuyers; ++i) {
@@ -24,7 +23,7 @@ bool buy(Subject** buyers, int numBuyers, const char** itemNames, int numItems, 
     return true;
 }
 
-
+// Function for buyers buying item(s) from another seller subject
 bool buyFrom(Subject** buyers, int numBuyers, Subject* seller, const char** itemNames, int numItems, int* quantities) {
 
     for (int i = 0; i < numItems; ++i) {
@@ -55,7 +54,7 @@ bool buyFrom(Subject** buyers, int numBuyers, Subject* seller, const char** item
 }
 
 
-
+// Function for sellers selling item(s) to an infinite source
 bool sell(Subject** sellers, int numSellers, const char** itemNames, int numItems, int* quantities) {
     
     // First, ensure all sellers have enough of the item
@@ -82,7 +81,7 @@ bool sell(Subject** sellers, int numSellers, const char** itemNames, int numItem
 }
 
 
-
+// Function for sellers selling item(s) to another buyer subject
 bool sellTo(Subject** sellers, int numSellers, Subject* buyer, const char** itemNames, int numItems, int* quantities) {
 
     for (int i = 0; i < numSellers; ++i) {
@@ -109,7 +108,7 @@ bool sellTo(Subject** sellers, int numSellers, Subject* buyer, const char** item
 }
 
 
-
+// Function for travellers going to a location
 void goTo(Subject** travellers, int numTravellers, const char* locationName) {
     Location* destLocation = findOrCreateLocation(locationName);
 

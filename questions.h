@@ -9,6 +9,7 @@ void where(Subject* visitor);
 void whoAt(const char* locationName);
 void totalInventory(Subject* owner);
 
+// Function to calculate the total amount of an item in the given subjects' inventory 
 void sumItem(Subject** owners, int numOwners, const char* itemName) {
     int total = 0;
     for (int i = 0; i < numOwners; ++i) {
@@ -19,6 +20,8 @@ void sumItem(Subject** owners, int numOwners, const char* itemName) {
     printf("%d\n", total);
 
 }
+
+// Function to answer at where a subject is currently
 void where(Subject* visitor) {
     if (!visitor->currentLocation) {
         printf("NOWHERE\n");
@@ -29,6 +32,7 @@ void where(Subject* visitor) {
     return;
 }
 
+// Function to answer who are at a given location
 void whoAt(const char* locationName) {
     Location* destLocation = findOrCreateLocation(locationName);
     if (!destLocation->subjectsPresent) {
@@ -44,6 +48,7 @@ void whoAt(const char* locationName) {
     return;
 }
 
+// Function to list a given subject's inventory
 void totalInventory(Subject* owner) {
     int hasItems = 0; // Flag to track if any items with quantity > 0 exist
     int written = 0;

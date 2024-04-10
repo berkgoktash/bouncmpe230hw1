@@ -5,6 +5,7 @@
 #include "conditions.h"
 #include "questions.h"
 
+// Some constraints
 #define MAX_INPUT_LENGTH 1024
 #define MAX_WORDS 300
 #define MAX_LINES 128
@@ -17,6 +18,7 @@ int allLocationsCount = 0; // Define and initialize the global count of location
 Subject** allSubjects = NULL; // Define and initialize the global subjects array
 int allSubjectsCount = 0; // Define and initialize the global count of subjects
 
+// Some variables for parsing input
 int start = 0;
 int* currentIndex = &start;
 int count = 0;
@@ -27,25 +29,25 @@ char input[MAX_INPUT_LENGTH];
 char* words[MAX_WORDS];
 int numWords;
 
-const char* allKeywords[] = {
+const char* allKeywords[] = { // Array of all possible keywords
     "sell", "buy", "go", "to", "from", "and", "at", "has", "if",
     "less", "more", "than", "exit", "where", "total", "who",
     "NOBODY", "NOTHING", "NOWHERE"
 } ;
 int numAllKeywords = 19;
 
-const char* targetKeywords[] = {
+const char* targetKeywords[] = { // Array of valid keywords in a sentence
     "sell", "buy", "go", "to", "from", "at", "has", "if",
     "less", "more", "than"
 } ;
 int numTargetKeywords = 11;
 
-const char* actionKeywords[] = {
+const char* actionKeywords[] = { // Array of action keywords
     "sell", "buy", "go"
 } ;
 int numActionKeywords = 3;
 
-const char* questionKeywords[] = {
+const char* questionKeywords[] = { // Array of question keywords
     "total", "where", "who"
 } ;
 int numQuestionKeywords = 3;
@@ -91,6 +93,7 @@ bool isQuestionKeyword(const char* str) {
     return false; // No match found
 }
 
+// Function to get next keyword
 char* findNextKeyword(int start) {
     for (int i = start; i < numWords; ++i) {
         if (isTargetKeyword(words[i])) return words[i];
@@ -98,6 +101,7 @@ char* findNextKeyword(int start) {
     return NULL;
 }
 
+// Function to find question keyword
 char* findQuestionKeyword() {
     for (int i = 0; i < numWords; ++i) {
         if (isQuestionKeyword(words[i])) return words[i];
@@ -153,7 +157,7 @@ int parseInput(char* input, char* words[]) {
 }
 
 
-void questionReader() {
+void questionReader() { // Function to parse a question
     char* questionKeyword = findQuestionKeyword();
     if (questionKeyword != NULL && strcmp(questionKeyword, "where") == 0) {  // Where block
         if (numWords == 3 && isValidString(words[0]) && !isAnyKeyword(words[0])) {
@@ -220,13 +224,12 @@ void questionReader() {
 }
 
 
-bool globalReader(int sentenceType) {
+bool globalReader(int sentenceType) { // Function to read sentences
     if (sentenceType == -1) {
         return false; // Invalid sentence
     } 
 
     if (sentenceType == 2) {
-        //printf("END OF SENTENCE\n");
         return true; // End of sentence
     }
 
@@ -257,7 +260,7 @@ bool globalReader(int sentenceType) {
     return true; 
 }
 
-int actionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
+int actionReader(Sentence* sentence, int* currentIndex) { // Function to parse action
     bool foundVerb = false;
     int i = 0;
     while (*currentIndex < numWords) {
@@ -585,7 +588,7 @@ int actionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
     return 2;
 } 
 
-int conditionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
+int conditionReader(Sentence* sentence, int* currentIndex) { // Function to parse condition
     bool foundVerb = false;
     int i = 0;
     while (*currentIndex < numWords) {
@@ -829,6 +832,7 @@ int conditionReader(Sentence* sentence, int* currentIndex) { // Read Sentences
     return 2;
 } 
 
+// Function to check given condition is true or false
 bool checkCondition(Sentence* condition) {
     if (strcmp(condition->verb, "has") == 0) {
         return has(condition->subjects, condition->subjectCount, (const char**)condition->items, condition->itemCount, condition->quantities);
@@ -846,6 +850,7 @@ bool checkCondition(Sentence* condition) {
     return false;
 }
 
+// Function to execute action if possible
 void executeAction(Sentence* action) {
     if (strcmp(action->verb, "buy") == 0) {
         buy(action->subjects, action->subjectCount, (const char**)action->items, action->itemCount, action->quantities);
@@ -864,6 +869,7 @@ void executeAction(Sentence* action) {
     }
 }
 
+// Function to determine which actions will be executed according to the conditions
 void processSentences() {
     bool conditionsMet = true; // Assume conditions are met until proven otherwise
     for (int i = 0; i < *sentenceCount; i++) {
