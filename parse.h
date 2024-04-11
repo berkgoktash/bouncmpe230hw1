@@ -7,7 +7,7 @@
 
 // Some constraints
 #define MAX_INPUT_LENGTH 1024
-#define MAX_WORDS 300
+#define MAX_WORDS 400
 #define MAX_LINES 128
 
 int actionReader(Sentence* sentence, int* currentIndex);
@@ -216,6 +216,7 @@ void questionReader() { // Function to parse a question
                 }
             }
             sumItem(askedSubjects, askedSubjectsCount, itemName);
+            free(askedSubjects);
         }
         else { printf("INVALID\n"); }
     }
@@ -904,5 +905,85 @@ void processSentences() {
 }
 
 
+void freeSentence(Sentence* sentence) {
+    if (sentence != NULL) {
+
+        // Free subjects array of pointers
+        if (sentence->subjects != NULL) {
+
+            /*
+            for (int i = 0; i < sentence->subjectCount; i++) {
+                free(sentence->subjects[i]); // Free each Subject pointer
+                sentence->subjects[i] = NULL; // Nullify after free to avoid double free
+            }
+            */
+            free(sentence->subjects); // Free the pointer array itself
+            sentence->subjects = NULL; // Nullify after free to avoid double free
+        }
+
+        // Free items array of pointers
+        
+        
+        if (sentence->items != NULL) {
+            /*
+            for (int i = 0; i < sentence->itemCount; i++) {
+
+                if (sentence->items[i] != NULL) {
+                    printf("%s\n", sentence->items[i]);
+                    free(sentence->items[i]); // Free each item (char array/string)
+                    printf("reach here zz\n");
+                    sentence->items[i] = NULL; // Nullify after free to avoid double free 
+                }
+            }
+            */
+            free(sentence->items); // Free the pointer array itself
+            sentence->items = NULL; // Nullify after free to avoid double free
+        }
+        
+
+        // Free the quantities array
+        if (sentence->quantities != NULL) {
+            free(sentence->quantities);
+            sentence->quantities = NULL;
+        }
+
+        // Free the location string
+        if (sentence->location != NULL) {
+            free(sentence->location);
+            sentence->location = NULL;
+        }
+
+        // Free 'other' subject
+        /*
+        if (sentence->other != NULL) {
+            free(sentence->other);
+            sentence->other = NULL;
+        }
+        */
+
+        // Free the verb string
+        if (sentence->verb != NULL) {
+            free(sentence->verb);
+            sentence->verb = NULL;
+        }
+
+        // Finally, free the sentence struct itself
+        free(sentence);
+        sentence = NULL;
+    }
+}
+
+
+void resetSentencesArray() {
+    if (sentences != NULL) {
+        for (int i = 0; i < *sentenceCount; i++) {
+            if (sentences[i] != NULL) {
+                freeSentence(sentences[i]);  // Free the resources held by the Sentence
+                sentences[i] = NULL;        // Reset the pointer to NULL after freeing
+            }
+        }
+        free(sentences);
+    }
+}
 
 #endif // PARSE_H

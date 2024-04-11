@@ -75,6 +75,7 @@ bool hasLessThan(Subject** owners, int numOwners, const char** itemNames, int nu
 // Function to check if subjects are at a specific location
 bool at(Subject** visitors, int numVisitors, const char* locationName) {
     for (int i = 0; i < numVisitors; ++i) {
+        if (visitors[i]->currentLocation == NULL) return false;
         if (strcmp(visitors[i]->currentLocation->locationName, locationName) != 0) return false;
     }
     return true;

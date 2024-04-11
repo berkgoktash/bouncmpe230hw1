@@ -15,6 +15,7 @@ int main() {
 
     for (int line = 0; line < MAX_LINES; line++) {
         printf(">> "); // Expect an input
+        fflush(stdout);
         if (fgets(input, MAX_INPUT_LENGTH, stdin) == NULL) {
             break;
         }
@@ -38,6 +39,7 @@ int main() {
             else {
                 printf("INVALID\n");
             }
+            resetSentencesArray();
         }
 
     }
