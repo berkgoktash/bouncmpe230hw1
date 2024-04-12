@@ -49,6 +49,7 @@ void whoAt(const char* locationName) {
 }
 
 // Function to list a given subject's inventory
+/*
 void totalInventory(Subject* owner) {
     int hasItems = 0; // Flag to track if any items with quantity > 0 exist
     int written = 0;
@@ -74,7 +75,34 @@ void totalInventory(Subject* owner) {
         }
         printf("\n");
     }
+}
+*/
 
+void totalInventory(Subject* owner) {
+    int hasItems = 0; // Flag to track if any items with quantity > 0 exist
+    int written = 0;
+
+    for (int i = 0; i < owner->inventorySize; ++i) {
+        if (owner->inventory[i]->quantity > 0) {
+            hasItems = 1; // Found at least one item with quantity > 0
+        }
+    }
+
+    if (hasItems == 0) {
+        printf("NOTHING\n"); // No items with quantity > 0 found
+    }
+    else {
+        for (int i = 0; i < owner->inventorySize; ++i) {
+            if (owner->inventory[i]->quantity > 0) {
+                if (written != 0) {
+                    printf(" and ");
+                }
+                printf("%d %s", owner->inventory[i]->quantity, owner->inventory[i]->itemName);
+                written = 1;
+            }
+        }
+        printf("\n");
+    }
 }
 
 

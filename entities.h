@@ -21,7 +21,8 @@ struct Subject {
     char* name;    // Name of the subject
     Location* currentLocation; // Current location of the subject
     int inventorySize;
-    Item* inventory;   // Pointer to an array of items
+    //Item* inventory;   // Pointer to an array of items
+    Item** inventory;   // Pointer to an array of items
 } ;
 
 // Location Structure
@@ -104,6 +105,7 @@ Subject* findOrCreateSubject(const char* name) {
 }
 
 // Function to find an item from a subject's inventory
+/*
 Item* findItem(Subject* subject, const char* itemName) {
     for (int i = 0; i < subject->inventorySize; ++i) {
         if (strcmp(subject->inventory[i].itemName, itemName) == 0) {
@@ -114,8 +116,21 @@ Item* findItem(Subject* subject, const char* itemName) {
     // Item not found
     return NULL;
 }
+*/
+
+Item* findItem(Subject* subject, const char* itemName) {
+    for (int i = 0; i < subject->inventorySize; ++i) {
+        if (strcmp(subject->inventory[i]->itemName, itemName) == 0) {
+            // Item found
+            return subject->inventory[i];
+        }
+    }
+    // Item not found
+    return NULL;
+}
 
 // Function to add an item to a subject's inventory
+/*
 void addItemToInventory(Subject* subject, const char* itemName, int quantity) {
     Item* item = findItem(subject, itemName);
     
@@ -132,6 +147,29 @@ void addItemToInventory(Subject* subject, const char* itemName, int quantity) {
         // Initialize the new item
         subject->inventory[subject->inventorySize - 1].itemName = strdup(itemName);
         subject->inventory[subject->inventorySize - 1].quantity = quantity;
+    }
+}
+*/
+
+// Function to add an item to a subject's inventory
+void addItemToInventory(Subject* subject, const char* itemName, int quantity) {
+    Item* item = findItem(subject, itemName);
+    if (item != NULL) {
+        // Item exists, update quantity
+        item->quantity += quantity;
+    } 
+    else {
+        // Item doesn't exist, add new item
+        // Reallocate inventory to accommodate new item
+        subject->inventory = realloc(subject->inventory, (subject->inventorySize + 1) * sizeof(Item*));
+        // Initialize the new item
+        Item* newItem = malloc(sizeof(Item));
+        newItem->itemName = strdup(itemName);
+        newItem->quantity = quantity;
+        subject->inventory[subject->inventorySize] = newItem;
+        //subject->inventory[subject->inventorySize]->itemName = strdup(itemName);
+        //subject->inventory[subject->inventorySize]->quantity = quantity;
+        subject->inventorySize++;
     }
 }
 

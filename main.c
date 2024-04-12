@@ -39,7 +39,7 @@ int main() {
             else {
                 printf("INVALID\n");
             }
-            resetSentencesArray();
+            //resetSentencesArray();
         }
 
     }

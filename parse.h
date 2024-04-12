@@ -910,32 +910,12 @@ void freeSentence(Sentence* sentence) {
 
         // Free subjects array of pointers
         if (sentence->subjects != NULL) {
-
-            /*
-            for (int i = 0; i < sentence->subjectCount; i++) {
-                free(sentence->subjects[i]); // Free each Subject pointer
-                sentence->subjects[i] = NULL; // Nullify after free to avoid double free
-            }
-            */
             free(sentence->subjects); // Free the pointer array itself
             sentence->subjects = NULL; // Nullify after free to avoid double free
         }
 
         // Free items array of pointers
-        
-        
         if (sentence->items != NULL) {
-            /*
-            for (int i = 0; i < sentence->itemCount; i++) {
-
-                if (sentence->items[i] != NULL) {
-                    printf("%s\n", sentence->items[i]);
-                    free(sentence->items[i]); // Free each item (char array/string)
-                    printf("reach here zz\n");
-                    sentence->items[i] = NULL; // Nullify after free to avoid double free 
-                }
-            }
-            */
             free(sentence->items); // Free the pointer array itself
             sentence->items = NULL; // Nullify after free to avoid double free
         }
@@ -952,14 +932,6 @@ void freeSentence(Sentence* sentence) {
             free(sentence->location);
             sentence->location = NULL;
         }
-
-        // Free 'other' subject
-        /*
-        if (sentence->other != NULL) {
-            free(sentence->other);
-            sentence->other = NULL;
-        }
-        */
 
         // Free the verb string
         if (sentence->verb != NULL) {
