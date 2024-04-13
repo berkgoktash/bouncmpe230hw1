@@ -237,24 +237,27 @@ bool globalReader(int sentenceType) { // Function to read sentences
 
     sentences = realloc(sentences, (*sentenceCount + 1) * sizeof(Sentence*));
 
+    Sentence* newSentence = malloc(sizeof(Sentence));
+    newSentence->subjects = NULL;
+    newSentence->subjectCount = 0;
+    newSentence->items = NULL;
+    newSentence->itemCount = 0;
+    newSentence->quantities = NULL;
+    newSentence->quantityCount = 0;
+    newSentence->location = NULL;
+    newSentence->other = NULL;
+    newSentence->verb = NULL;
+
     if (sentenceType == 0) { // Call action reader
-        Sentence* newSentence = malloc(sizeof(Sentence));
-        newSentence->subjects = NULL;
-        newSentence->items = NULL;
-        newSentence->quantities = NULL;
-        sentences[(*sentenceCount)++] = newSentence;
         newSentence->type = 0;
+        sentences[(*sentenceCount)++] = newSentence;
         return globalReader(actionReader(newSentence, currentIndex));
     }
 
     
     if (sentenceType == 1) { // Call condition reader
-        Sentence* newSentence = malloc(sizeof(Sentence));
-        newSentence->subjects = NULL;
-        newSentence->items = NULL;
-        newSentence->quantities = NULL;
-        sentences[(*sentenceCount)++] = newSentence;
         newSentence->type = 1;
+        sentences[(*sentenceCount)++] = newSentence;
         return globalReader(conditionReader(newSentence, currentIndex));
     }
     

@@ -96,6 +96,9 @@ Subject* findOrCreateSubject(const char* name) {
 
     // Initialize the new Subject
     newSubject->name = strdup(name); // Copy the name
+    newSubject->currentLocation = NULL;
+    newSubject->inventory = NULL;
+    newSubject->inventorySize = 0;
 
     // Add the new Subject to the global list
     allSubjects[allSubjectsCount] = newSubject;
