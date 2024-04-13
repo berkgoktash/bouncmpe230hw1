@@ -108,19 +108,6 @@ Subject* findOrCreateSubject(const char* name) {
 }
 
 // Function to find an item from a subject's inventory
-/*
-Item* findItem(Subject* subject, const char* itemName) {
-    for (int i = 0; i < subject->inventorySize; ++i) {
-        if (strcmp(subject->inventory[i].itemName, itemName) == 0) {
-            // Item found
-            return &(subject->inventory[i]);
-        }
-    }
-    // Item not found
-    return NULL;
-}
-*/
-
 Item* findItem(Subject* subject, const char* itemName) {
     for (int i = 0; i < subject->inventorySize; ++i) {
         if (strcmp(subject->inventory[i]->itemName, itemName) == 0) {
@@ -131,28 +118,6 @@ Item* findItem(Subject* subject, const char* itemName) {
     // Item not found
     return NULL;
 }
-
-// Function to add an item to a subject's inventory
-/*
-void addItemToInventory(Subject* subject, const char* itemName, int quantity) {
-    Item* item = findItem(subject, itemName);
-    
-    if (item != NULL) {
-        // Item exists, update quantity
-        item->quantity += quantity;
-    } 
-    else {
-        // Item doesn't exist, add new item
-        // Reallocate inventory to accommodate new item
-        subject->inventorySize++;
-        subject->inventory = realloc(subject->inventory, subject->inventorySize * sizeof(Item));
-        
-        // Initialize the new item
-        subject->inventory[subject->inventorySize - 1].itemName = strdup(itemName);
-        subject->inventory[subject->inventorySize - 1].quantity = quantity;
-    }
-}
-*/
 
 // Function to add an item to a subject's inventory
 void addItemToInventory(Subject* subject, const char* itemName, int quantity) {
@@ -170,8 +135,6 @@ void addItemToInventory(Subject* subject, const char* itemName, int quantity) {
         newItem->itemName = strdup(itemName);
         newItem->quantity = quantity;
         subject->inventory[subject->inventorySize] = newItem;
-        //subject->inventory[subject->inventorySize]->itemName = strdup(itemName);
-        //subject->inventory[subject->inventorySize]->quantity = quantity;
         subject->inventorySize++;
     }
 }
