@@ -326,7 +326,7 @@ int actionReader(Sentence* sentence, int* currentIndex) { // Function to parse a
                             else if (strcmp(words[*currentIndex], "to" ) == 0 && *currentIndex + 1 < numWords) {
                                 i++;
                                 (*currentIndex)++;
-                                if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex]) ) {
+                                if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex]) && !subjectExists(sentence, words[*currentIndex])) {
                                     Subject* otherSubject = findOrCreateSubject(words[*currentIndex]);
                                     sentence->other = otherSubject;
                                 }
@@ -454,7 +454,7 @@ int actionReader(Sentence* sentence, int* currentIndex) { // Function to parse a
                             else if (strcmp(words[*currentIndex], "from" ) == 0 && *currentIndex + 1 < numWords) {
                                 i++;
                                 (*currentIndex)++;
-                                if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex]) && !subjectExists(sentence, words[*currentIndex]) && !subjectExists(sentence, words[*currentIndex]) ) {
+                                if (isValidString(words[*currentIndex]) && !isAnyKeyword(words[*currentIndex]) && !subjectExists(sentence, words[*currentIndex]) ) {
                                     Subject* otherSubject = findOrCreateSubject(words[*currentIndex]);
                                     sentence->other = otherSubject;
                                 }
